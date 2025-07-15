@@ -1,0 +1,19 @@
+- route:
+    id: test-log
+    from:
+      id: from-41b7
+      uri: timer
+      parameters:
+        period: "5000"
+        timerName: test
+        delay: "1000"
+      steps:
+        - setBody:
+            id: setBody-2e03
+            expression:
+              constant:
+                id: constant-1866
+                expression: Hello from Karavan!
+        - log:
+            id: log-27b4
+            message: ${body}
