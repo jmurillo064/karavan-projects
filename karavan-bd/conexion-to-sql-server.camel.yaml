@@ -1,0 +1,18 @@
+- route:
+    id: postgres-direct-route
+    from:
+      id: from-6bec
+      uri: timer
+      parameters:
+        timerName: db-test?period=30000
+      steps:
+        - to:
+            id: to-c44c
+            uri: sql
+            parameters:
+              query: >-
+                SELECT
+                version()?dataSource=jdbc:postgresql://localhost:5432/karavan_db&user=postgres&password=postgres123
+        - log:
+            id: log-8842
+            message: "PostgreSQL Version: ${body}"
