@@ -1,0 +1,27 @@
+- route:
+    id: activemq-route
+    from:
+      id: from-4e61
+      uri: activemq
+      parameters:
+        destinationType: queue
+        destinationName: entrada
+      steps:
+        - log:
+            id: log-ecf3
+            message: "Mensaje recibido: ${body}"
+        - setBody:
+            id: setBody-ccc8
+            expression:
+              simple:
+                id: simple-24a9
+                expression: ${body.toUpperCase()}
+        - log:
+            id: log-cfd2
+            message: "Mensaje transformado: ${body}"
+        - to:
+            id: to-ecfb
+            uri: activemq
+            parameters:
+              destinationType: queue
+              destinationName: salida
