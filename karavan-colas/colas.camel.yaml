@@ -10,6 +10,7 @@
         - log:
             id: log-ecf3
             message: "Mensaje recibido: ${body}"
+            loggingLevel: INFO
         - setBody:
             id: setBody-ccc8
             expression:
@@ -19,9 +20,40 @@
         - log:
             id: log-cfd2
             message: "Mensaje transformado: ${body}"
+            loggingLevel: INFO
         - to:
             id: to-ecfb
             uri: activemq
             parameters:
               destinationType: queue
               destinationName: salida
+        - choice:
+            id: choice-5ed1
+            when:
+              - id: when-cf0d
+                expression:
+                  simple:
+                    id: simple-93f6
+                    expression: ${body} == 'HOLA'
+                steps:
+                  - log:
+                      id: log-7d80
+                      message: BIENVENIDO AL SISTEMA
+                      loggingLevel: INFO
+              - id: when-4361
+                expression:
+                  simple:
+                    id: simple-8fa0
+                    expression: ${body} == 'CHAO'
+                steps:
+                  - log:
+                      id: log-7d33
+                      message: GRACIAS POR USAR EL SISTEMA
+                      loggingLevel: INFO
+            otherwise:
+              id: otherwise-df65
+              steps:
+                - log:
+                    id: log-7929
+                    message: NO HEMOS ENCONTRADO TU ACCIÓN
+                    loggingLevel: INFO
