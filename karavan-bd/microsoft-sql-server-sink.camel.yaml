@@ -1,0 +1,45 @@
+- route:
+    id: ruta-conexion-db
+    nodePrefixId: ruta-conexion-db
+    from:
+      id: from-15b2
+      uri: timer
+      parameters:
+        delay: "10000"
+        timerName: timer-test-bd
+        period: "120000"
+      steps:
+        - setBody:
+            id: setBody-4734
+            expression:
+              simple:
+                id: simple-c285
+                expression: >-
+                  {"contenido": "Mensaje de prueba desde Karavan -
+                  ${date:now:yyyy-MM-dd HH:mm:ss}"}
+        - to:
+            id: sql-server-sink
+            disabled: true
+            uri: kamelet:sqlserver-sink
+            parameters:
+              password: "{{sql.password}}"
+              username: "{{sql.username}}"
+              serverPort: "{{sql.port}}"
+              serverName: "{{sql.server}}"
+              databaseName: "{{sql.database}}"
+              query: INSERT INTO contenido (contenido) VALUES (:#contenido)
+        - log:
+            id: log-69fb
+            message: ${body}
+        - to:
+            id: to-0667
+            uri: kamelet:sqlserver-sink
+            parameters:
+              serverName: "{{sql.server}}"
+              serverPort: "{{sql.port}}"
+              username: "{{sql.username}}"
+              password: "{{sql.password}}"
+              databaseName: "{{sql.database}}"
+              query: >-
+                SELECT TOP 5 id, contenido, fecha_procesamiento FROM contenido
+                ORDER BY id DESC
