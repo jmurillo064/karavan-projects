@@ -1,7 +1,8 @@
 - route:
-    id: activemq-route
+    id: ruta-cola-eleccion
     from:
       id: from-4e61
+      description: Leer mensaje entrada
       uri: activemq
       parameters:
         destinationType: queue
@@ -9,28 +10,34 @@
       steps:
         - log:
             id: log-ecf3
+            description: Imprimir mensaje de entrada
             message: "Mensaje recibido: ${body}"
             loggingLevel: INFO
         - setBody:
             id: setBody-ccc8
+            description: Convertir mensaje a mayusculas
             expression:
               simple:
                 id: simple-24a9
                 expression: ${body.toUpperCase()}
         - log:
             id: log-cfd2
+            description: Imprimir mensaje transformado
             message: "Mensaje transformado: ${body}"
             loggingLevel: INFO
         - to:
             id: to-ecfb
+            description: Ingresar mensaje a cola salida
             uri: activemq
             parameters:
               destinationType: queue
               destinationName: salida
         - choice:
             id: choice-5ed1
+            description: Elegir mensaje de salida
             when:
               - id: when-cf0d
+                description: Saludo
                 expression:
                   simple:
                     id: simple-93f6
@@ -38,9 +45,11 @@
                 steps:
                   - log:
                       id: log-7d80
+                      description: Imprimir saludo
                       message: BIENVENIDO AL SISTEMA
                       loggingLevel: INFO
               - id: when-4361
+                description: Despedida
                 expression:
                   simple:
                     id: simple-8fa0
@@ -48,12 +57,15 @@
                 steps:
                   - log:
                       id: log-7d33
+                      description: Imprimir despedida
                       message: GRACIAS POR USAR EL SISTEMA
                       loggingLevel: INFO
             otherwise:
               id: otherwise-df65
+              description: Ninguno de los anteriores
               steps:
                 - log:
                     id: log-7929
+                    description: Imprimir mensaje por defecto
                     message: NO HEMOS ENCONTRADO TU ACCIÓN
                     loggingLevel: INFO

@@ -1,29 +1,34 @@
 - route:
-    id: activemq-route-simple
+    id: activemq-route-bd
     from:
-      id: from-simple
+      id: cola-salida
+      description: Lectura salida
       uri: activemq
       parameters:
         destinationType: queue
         destinationName: salida
       steps:
         - log:
-            id: log-simple
+            id: log-salida
+            description: Imprimir dato
             message: "Insertando en base: ${body}"
             loggingLevel: INFO
         - setHeader:
-            id: set-contenido
+            id: set-salida
+            description: Convertir body a header
             name: contenido
             expression:
               simple:
                 id: simple-afda
                 expression: ${body}
         - to:
-            id: to-database
+            id: db-salida
+            description: Insertar en bd
             uri: sql
             parameters:
               dataSource: "#myDataSource"
               query: INSERT INTO contenido (contenido) VALUES (:#contenido)
         - log:
-            id: log-success
+            id: log-final
+            description: Imprimir mensaje final
             message: "Insertado correctamente: ${header.contenido}"
