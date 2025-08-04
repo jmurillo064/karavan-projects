@@ -1,65 +1,116 @@
 - route:
-    id: route-1fbc
+    id: route-test-timer
     from:
-      id: from-a298
+      id: from-test-timer
       uri: timer
       parameters:
-        timerName: test?period=10000
+        timerName: test
+        period: 10000
       steps:
         - log:
-            id: log-8440
+            id: log-timer-triggered
             message: Timer triggered - testing route
         - setBody:
-            id: setBody-fe5c
+            id: setBody-test
             expression:
               constant:
-                id: constant-7c5c
+                id: constant-test
                 expression: Route is working!
         - log:
-            id: log-adc1
+            id: log-body
             message: "Body: ${body}"
 - route:
-    id: route-9716
+    id: route-sqlserver-version
     from:
-      id: from-06a8
+      id: from-sqlserver-version
       uri: timer
       parameters:
-        timerName: db-test?period=30000
+        timerName: sqlserver-version-test
+        period: 30000
       steps:
         - log:
-            id: log-520b
-            message: Ejecutando consulta a PostgreSQL...
-        - to:
-            id: to-500a
-            uri: sql
-            parameters:
-              query: SELECT version()?dataSource=#default
-        - log:
-            id: log-5b10
-            message: "Versión de PostgreSQL: ${body}"
-- route:
-    id: route-4a91
-    from:
-      id: from-0bf3
-      uri: timer
-      parameters:
-        timerName: db-test?period=30000
-      steps:
-        - log:
-            id: log-46c8
-            message: Ejecutando consulta a PostgreSQL...
-        - setBody:
-            id: setBody-be53
+            id: log-version-start
+            message: Ejecutando consulta a SQL Server...
+        - setHeader:
+            id: setHeader-version-query
+            name: CamelJdbcQuery
             expression:
               constant:
-                id: constant-9dab
-                expression: SELECT version()
+                id: constant-version-query
+                expression: SELECT @@VERSION as version
         - to:
-            id: to-876a
+            id: to-version-query
             uri: jdbc
             parameters:
-              dataSourceName: >-
-                postgresql://localhost:5432/karavan_db?user=postgres&password=postgres123
+              dataSource: "#myDataSource"
+              dataSourceName: myDataSource
         - log:
-            id: log-fc11
-            message: "Versión de PostgreSQL: ${body}"
+            id: log-version-result
+            message: "Versión de SQL Server: ${body}"
+- route:
+    id: route-insert-test-data
+    from:
+      id: from-insert-test
+      uri: timer
+      parameters:
+        timerName: insert-test
+        period: 45000
+        repeatCount: 3
+      steps:
+        - log:
+            id: log-insert-start
+            message: Insertando datos de prueba en SQL Server...
+        - setBody:
+            id: setBody-test-data
+            expression:
+              simple:
+                id: simple-test-data
+                expression: Datos de prueba - ${date:now:HH:mm:ss}
+        - setHeader:
+            id: setHeader-insert-query
+            name: CamelJdbcQuery
+            expression:
+              constant:
+                id: constant-insert-query
+                expression: >-
+                  INSERT INTO dbo.contenido (contenido, fecha_procesamiento)
+                  VALUES (?, GETDATE())
+        - to:
+            id: to-insert-data
+            uri: jdbc
+            parameters:
+              dataSource: "#myDataSource"
+              dataSourceName: myDataSource
+        - log:
+            id: log-insert-success
+            message: "Datos insertados correctamente: ${body}"
+- route:
+    id: route-select-test-data
+    from:
+      id: from-select-test
+      uri: timer
+      parameters:
+        timerName: select-test
+        period: 60000
+      steps:
+        - log:
+            id: log-select-start
+            message: Consultando datos de la tabla contenido...
+        - setHeader:
+            id: setHeader-select-query
+            name: CamelJdbcQuery
+            expression:
+              constant:
+                id: constant-select-query
+                expression: >-
+                  SELECT TOP 5 id, contenido, fecha_procesamiento FROM
+                  dbo.contenido ORDER BY id DESC
+        - to:
+            id: to-select-data
+            uri: jdbc
+            parameters:
+              dataSource: "#myDataSource"
+              dataSourceName: myDataSource
+        - log:
+            id: log-select-result
+            message: "Últimos registros: ${body}"
