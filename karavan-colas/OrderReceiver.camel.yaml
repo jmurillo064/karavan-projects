@@ -17,7 +17,9 @@
             expression:
               constant:
                 id: constant-jdbc-query
-                expression: INSERT INTO mensajes (contenido) VALUES (?)
+                expression: >-
+                  INSERT INTO mensajes (contenido, fecha_procesamiento, estado)
+                  VALUES (?, GETDATE(), 'PROCESADO')
         - to:
             id: to-database
             uri: jdbc
