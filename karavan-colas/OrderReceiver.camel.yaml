@@ -1,1 +1,21 @@
-[]
+- route:
+    id: activemq-route
+    from:
+      id: from-4e61
+      uri: activemq
+      parameters:
+        destinationType: queue
+        destinationName: salida
+      steps:
+        - log:
+            id: log-ecf3
+            message: "Mensaje recibido: ${body}"
+            loggingLevel: INFO
+        - to:
+            id: to-sqlserver
+            uri: sql
+            parameters:
+              dataSource: "#dataSource"
+              query: >-
+                INSERT INTO mensajes (contenido, fecha_procesamiento) VALUES (?,
+                GETDATE())
