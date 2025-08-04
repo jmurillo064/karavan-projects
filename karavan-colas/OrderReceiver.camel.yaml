@@ -1,21 +1,25 @@
 - route:
-    id: activemq-route
+    id: activemq-route-simple
     from:
-      id: from-4e61
+      id: from-simple
       uri: activemq
       parameters:
         destinationType: queue
         destinationName: salida
       steps:
         - log:
-            id: log-ecf3
-            message: "Mensaje recibido: ${body}"
+            id: log-simple
+            message: "Insertando en base: ${body}"
             loggingLevel: INFO
+        - setHeader:
+            id: setHeader-jdbc-query
+            name: CamelJdbcQuery
+            expression:
+              constant:
+                id: constant-jdbc-query
+                expression: INSERT INTO mensajes (contenido) VALUES (?)
         - to:
-            id: to-sqlserver
-            uri: sql
+            id: to-database
+            uri: jdbc
             parameters:
-              dataSource: "#dataSource"
-              query: >-
-                INSERT INTO mensajes (contenido, fecha_procesamiento) VALUES (?,
-                GETDATE())
+              dataSourceName: myDataSource
