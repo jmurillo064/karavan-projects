@@ -12,16 +12,18 @@
             message: "Insertando en base: ${body}"
             loggingLevel: INFO
         - setHeader:
-            id: setHeader-jdbc-query
-            name: CamelJdbcQuery
+            id: set-contenido
+            name: contenido
             expression:
-              constant:
-                id: constant-jdbc-query
-                expression: >-
-                  INSERT INTO mensajes (contenido, fecha_procesamiento, estado)
-                  VALUES (?, GETDATE(), 'PROCESADO')
+              simple:
+                id: simple-afda
+                expression: ${body}
         - to:
             id: to-database
-            uri: jdbc
+            uri: sql
             parameters:
-              dataSourceName: myDataSource
+              dataSource: "#myDataSource"
+              query: INSERT INTO contenido (contenido) VALUES (:#contenido)
+        - log:
+            id: log-success
+            message: "Insertado correctamente: ${header.contenido}"
