@@ -33,6 +33,7 @@
             message: ${body}
         - to:
             id: to-0667
+            disabled: true
             uri: kamelet:sqlserver-sink
             parameters:
               serverName: "{{sql.server}}"
@@ -43,3 +44,14 @@
               query: >-
                 SELECT TOP 5 id, contenido, fecha_procesamiento FROM contenido
                 ORDER BY id DESC
+        - to:
+            id: to-51f3
+            uri: sql
+            parameters:
+              query: >-
+                SELECT TOP 5 id, contenido, fecha_procesamiento FROM contenido
+                ORDER BY id DESC
+              dataSource: "#myDataSource"
+        - log:
+            id: log-cdc2
+            message: ${body}

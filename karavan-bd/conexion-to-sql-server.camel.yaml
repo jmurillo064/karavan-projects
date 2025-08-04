@@ -1,5 +1,6 @@
 - route:
     id: route-test-timer
+    autoStartup: false
     from:
       id: from-test-timer
       uri: timer
@@ -21,6 +22,7 @@
             message: "Body: ${body}"
 - route:
     id: route-sqlserver-version
+    autoStartup: false
     from:
       id: from-sqlserver-version
       uri: timer
@@ -49,6 +51,7 @@
             message: "Versión de SQL Server: ${body}"
 - route:
     id: route-insert-test-data
+    autoStartup: false
     from:
       id: from-insert-test
       uri: timer
@@ -86,6 +89,7 @@
             message: "Datos insertados correctamente: ${body}"
 - route:
     id: route-select-test-data
+    autoStartup: false
     from:
       id: from-select-test
       uri: timer
