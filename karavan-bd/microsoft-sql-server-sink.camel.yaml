@@ -14,9 +14,7 @@
             expression:
               simple:
                 id: simple-c285
-                expression: >-
-                  {"contenido": "Mensaje de prueba desde Karavan -
-                  ${date:now:yyyy-MM-dd HH:mm:ss}"}
+                expression: "{\"contenido\": \"Mensaje de prueba desde Karavan\"}"
         - to:
             id: sql-server-sink
             disabled: true
@@ -46,12 +44,65 @@
                 ORDER BY id DESC
         - to:
             id: to-51f3
+            disabled: true
             uri: sql
             parameters:
               query: >-
                 SELECT TOP 5 id, contenido, fecha_procesamiento FROM contenido
                 ORDER BY id DESC
               dataSource: "#myDataSource"
+        - step:
+            id: step-3dad
+            steps:
+              - setBody:
+                  id: setBody-47be
+                  expression:
+                    simple:
+                      id: simple-12c8
+                      expression: >-
+                        SELECT id, contenido, fecha_procesamiento FROM contenido
+                        WHERE id = 55 ORDER BY id DESC
+              - setHeader:
+                  id: setHeader-bb11
+                  name: CamelJdbcParameters
+                  expression:
+                    simple:
+                      id: simple-3937
+                      expression: "5"
+              - to:
+                  id: to-e7dc
+                  uri: jdbc
+                  parameters:
+                    dataSourceName: myDataSource
+              - choice:
+                  id: choice-95dd
+                  when:
+                    - id: when-9959
+                      expression:
+                        simple:
+                          id: simple-06c1
+                          expression: ${body.size()} > 0
+                      steps:
+                        - split:
+                            id: split-5624
+                            expression:
+                              simple:
+                                id: simple-31d2
+                                expression: ${body}
+                            steps:
+                              - log:
+                                  id: log-7786
+                                  message: >-
+                                    Registro ID: ${body[id]} - Contenido:
+                                    ${body[contenido]}
+                                  loggingLevel: INFO
+                  otherwise:
+                    id: otherwise-1d42
+                    steps:
+                      - log:
+                          id: log-a3eb
+                          message: No se encontraron registros
+                          loggingLevel: WARN
         - log:
             id: log-cdc2
             message: ${body}
