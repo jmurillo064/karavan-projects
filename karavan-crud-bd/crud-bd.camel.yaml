@@ -55,6 +55,14 @@
                               "message": "Registro creado exitosamente",
                               "rowsAffected": ${body[0]}
                             }
+                  - setHeader:
+                      id: setHeader-7b16
+                      description: Setear codigo respuesta
+                      name: CamelHttpResponseCode
+                      expression:
+                        simple:
+                          id: simple-3f70
+                          expression: "201"
               - id: when-4fb0
                 description: READ
                 expression:
@@ -174,6 +182,14 @@
                                       "operation": "UPDATE",
                                       "message": "ID y contenido son requeridos"
                                     }
+                          - setHeader:
+                              id: setHeader-bb20
+                              description: Setear codigo respuesta
+                              name: CamelHttpResponseCode
+                              expression:
+                                simple:
+                                  id: simple-404b
+                                  expression: "400"
               - id: when-1e92
                 description: DELETE
                 expression:
@@ -232,6 +248,14 @@
                                       "operation": "DELETE",
                                       "message": "ID es requerido para eliminar"
                                     }
+                          - setHeader:
+                              id: setHeader-cfe0
+                              description: Setear codigo respuesta
+                              name: CamelHttpResponseCode
+                              expression:
+                                simple:
+                                  id: simple-9c9b
+                                  expression: "400"
             otherwise:
               id: otherwise-invalid
               description: NINGUNO DE LOS ANTERIORES
@@ -248,6 +272,14 @@
                             "message": "Operación no válida. Use: CREATE, READ, UPDATE, DELETE",
                             "validOperations": ["CREATE", "READ", "UPDATE", "DELETE"]
                           }
+                - setHeader:
+                    id: setHeader-b424
+                    description: Setear codigo respuesta 404
+                    name: CamelHttpResponseCode
+                    expression:
+                      simple:
+                        id: simple-f52b
+                        expression: "404"
         - setHeader:
             id: set-content-type
             description: Setear header
