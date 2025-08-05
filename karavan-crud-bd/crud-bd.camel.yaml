@@ -1,0 +1,262 @@
+- route:
+    id: rest-crud-route
+    from:
+      id: from-rest-crud
+      description: Api CRUD
+      uri: platform-http
+      parameters:
+        httpMethodRestrict: POST
+        path: /crud
+      steps:
+        - log:
+            id: log-request
+            description: Datos de entrada
+            message: "Solicitud CRUD recibida: ${body}"
+            loggingLevel: INFO
+        - unmarshal:
+            id: unmarshal-request
+            description: Traducción
+            json:
+              id: json-7c9c
+        - choice:
+            id: choice-crud-operation
+            description: Elegir camino
+            when:
+              - id: when-6a50
+                description: CREATE
+                expression:
+                  simple:
+                    id: simple-e674
+                    expression: ${body[operacion]} == 'CREATE'
+                steps:
+                  - log:
+                      id: log-create
+                      description: Log de acción
+                      message: ➕ Ejecutando CREATE
+                  - to:
+                      id: to-create
+                      description: Crear en base
+                      uri: sql
+                      parameters:
+                        dataSource: "#myDataSource"
+                        query: >-
+                          INSERT INTO contenido (contenido)  VALUES
+                          (:#contenido)
+                  - setBody:
+                      id: response-create
+                      description: Setear respuesta de éxito
+                      expression:
+                        simple:
+                          id: simple-2472
+                          expression: |
+                            {
+                              "status": "success",
+                              "operation": "CREATE",
+                              "message": "Registro creado exitosamente",
+                              "rowsAffected": ${body[0]}
+                            }
+              - id: when-4fb0
+                description: READ
+                expression:
+                  simple:
+                    id: simple-30e8
+                    expression: ${body[operacion]} == 'READ'
+                steps:
+                  - log:
+                      id: log-read
+                      description: Log de acción
+                      message: Ejecutando READ
+                  - choice:
+                      id: choice-read-type
+                      description: Elegir camino id
+                      when:
+                        - id: when-a9b8
+                          description: Buscar por id
+                          expression:
+                            simple:
+                              id: simple-180d
+                              expression: ${body[id]} != null
+                          steps:
+                            - to:
+                                id: to-read-by-id
+                                description: Buscar en base
+                                uri: sql
+                                parameters:
+                                  dataSource: "#myDataSource"
+                                  query: >-
+                                    SELECT id, contenido, fecha_procesamiento 
+                                    FROM contenido  WHERE id = :#id
+                      otherwise:
+                        id: otherwise-a67e
+                        description: Traer 5 registros finales
+                        steps:
+                          - to:
+                              id: to-read-all
+                              description: Traer de base
+                              uri: sql
+                              parameters:
+                                dataSource: "#myDataSource"
+                                query: >-
+                                  SELECT TOP 5 id, contenido,
+                                  fecha_procesamiento  FROM contenido  ORDER BY
+                                  id DESC
+                  - setBody:
+                      id: response-read
+                      description: Setear respuesta de éxito
+                      expression:
+                        simple:
+                          id: simple-69df
+                          expression: |
+                            {
+                              "status": "success",
+                              "operation": "READ",
+                              "data": ${body}
+                            }
+              - id: when-4f16
+                description: UPDATE
+                expression:
+                  simple:
+                    id: simple-6113
+                    expression: ${body[operacion]} == 'UPDATE'
+                steps:
+                  - log:
+                      id: log-update
+                      description: Log de acción
+                      message: "Ejecutando UPDATE para ID: ${body[id]}"
+                  - choice:
+                      id: choice-update-validation
+                      description: Validar datos
+                      when:
+                        - id: when-b2c9
+                          description: id + contenido
+                          expression:
+                            simple:
+                              id: simple-dc2a
+                              expression: >-
+                                ${body[id]} != null && ${body[contenido]} !=
+                                null
+                          steps:
+                            - to:
+                                id: to-update
+                                description: Actualizar en base
+                                uri: sql
+                                parameters:
+                                  dataSource: "#myDataSource"
+                                  query: >-
+                                    UPDATE contenido  SET contenido =
+                                    :#contenido  WHERE id = :#id
+                            - setBody:
+                                id: response-update
+                                description: Setear respuesta de éxito
+                                expression:
+                                  simple:
+                                    id: simple-b05c
+                                    expression: |
+                                      {
+                                        "status": "success",
+                                        "operation": "UPDATE",
+                                        "message": "Registro actualizado",
+                                        "rowsAffected": ${body[0]}
+                                      }
+                      otherwise:
+                        id: otherwise-cb39
+                        description: Sin datos
+                        steps:
+                          - setBody:
+                              id: error-update
+                              description: Setear respuesta de error
+                              expression:
+                                simple:
+                                  id: simple-5516
+                                  expression: |
+                                    {
+                                      "status": "error",
+                                      "operation": "UPDATE",
+                                      "message": "ID y contenido son requeridos"
+                                    }
+              - id: when-1e92
+                description: DELETE
+                expression:
+                  simple:
+                    id: simple-8599
+                    expression: ${body[operacion]} == 'DELETE'
+                steps:
+                  - log:
+                      id: log-delete
+                      description: Log de acción
+                      message: "Ejecutando DELETE para ID: ${body[id]}"
+                  - choice:
+                      id: choice-delete-validation
+                      description: Validar datos
+                      when:
+                        - id: when-6f50
+                          description: id
+                          expression:
+                            simple:
+                              id: simple-4453
+                              expression: ${body[id]} != null
+                          steps:
+                            - to:
+                                id: to-delete
+                                description: Eliminar en base
+                                uri: sql
+                                parameters:
+                                  dataSource: "#myDataSource"
+                                  query: DELETE FROM contenido WHERE id = :#id
+                            - setBody:
+                                id: response-delete
+                                description: Setear respuesta de éxito
+                                expression:
+                                  simple:
+                                    id: simple-ca74
+                                    expression: |
+                                      {
+                                        "status": "success",
+                                        "operation": "DELETE",
+                                        "message": "Registro eliminado",
+                                        "rowsAffected": ${body[0]}
+                                      }
+                      otherwise:
+                        id: otherwise-ab77
+                        description: Sin id
+                        steps:
+                          - setBody:
+                              id: error-delete
+                              description: Setear respuesta de error
+                              expression:
+                                simple:
+                                  id: simple-cf16
+                                  expression: |
+                                    {
+                                      "status": "error",
+                                      "operation": "DELETE",
+                                      "message": "ID es requerido para eliminar"
+                                    }
+            otherwise:
+              id: otherwise-invalid
+              description: NINGUNO DE LOS ANTERIORES
+              steps:
+                - setBody:
+                    id: error-invalid-operation
+                    description: Setear respuesta de error
+                    expression:
+                      simple:
+                        id: simple-bf70
+                        expression: |
+                          {
+                            "status": "error",
+                            "message": "Operación no válida. Use: CREATE, READ, UPDATE, DELETE",
+                            "validOperations": ["CREATE", "READ", "UPDATE", "DELETE"]
+                          }
+        - setHeader:
+            id: set-content-type
+            description: Setear header
+            name: Content-Type
+            expression:
+              simple:
+                id: simple-0605
+                expression: application/json
+        - log:
+            id: log-response
+            description: Mostrar respuesta
+            message: "Respuesta: ${body}"
